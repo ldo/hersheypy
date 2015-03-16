@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+#+
+# Test of using a Hershey font as a Cairo user font
+#-
+
+import sys
+import getopt
+import qahirah as qah
+from qahirah import \
+    CAIRO, \
+    Colour, \
+    Vector
+import hershey_font
+
+debug = False
+
+if len(sys.argv) != 6 :
+    raise getopt.GetoptError("usage: %s <text> <fontfile> <textsize> <linethick> <outfile>" % sys.argv[0])
+#end if
+text, fontfile, textsize, linethick, outfile = sys.argv[1:6]
+textsize = float(textsize)
+linethick = float(linethick)
+
+face = hershey_font.load(fontfile, linethick, kern = True)
+text_extents = \
+    (qah.Context.create
+      (
+        qah.ImageSurface.create
+          (
+            format = CAIRO.FORMAT_A8,
+            dimensions = (0, 0) # dummy, just for text measurement
+          )
+      )
+        .set_font_face(face)
+        .set_font_size(textsize)
+        .text_extents(text)
+    )
+if debug :
+    sys.stderr.write("text extents = %s\n" % repr(text_extents))
+#end if
+pix = qah.ImageSurface.create \
+  (
+    format = CAIRO.FORMAT_RGB24,
+    dimensions = round(Vector(text_extents.width, text_extents.height))
+  )
+ctx = \
+    (qah.Context.create(pix)
+        .set_source_colour(Colour.grey(1))
+        .set_operator(CAIRO.OPERATOR_SOURCE)
+        .paint()
+        .set_source_colour(Colour.grey(0))
+        .translate((- text_extents.x_bearing, - text_extents.y_bearing))
+        .set_font_face(face)
+        .set_font_size(textsize)
+        .move_to((0, 0))
+        .show_text(text)
+    )
+if debug :
+    # show baseline and glyphs details
+    glyphs, clusters, cluster_flags = \
+        (ctx
+            .set_source_colour(Colour.from_hsva((.55, .7, 1)))
+            .move_to((0, 0))
+            .line_to((pix.width, 0))
+            .stroke()
+            .scaled_font.text_to_glyphs((0, 0), text, True)
+        )
+    print("glyphs[%d] = %s\nclusters[%d] = %s\ncluster_flags = %d" % (len(glyphs), repr(glyphs), len(clusters), repr(clusters), cluster_flags)) # debug
+#end if
+pix.flush()
+pix.write_to_png(outfile)
+sys.stderr.write("image written to %s\n" % outfile) # debug

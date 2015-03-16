@@ -1,0 +1,114 @@
+#!/usr/bin/python3
+#+
+# Test of using a Hershey font as a Cairo user font
+#-
+
+import sys
+import os
+import math
+import qahirah as qah
+from qahirah import \
+    CAIRO, \
+    Colour, \
+    Matrix, \
+    Vector
+import hershey_font
+
+debug = False
+
+if len(sys.argv) != 2 :
+    raise RuntimeError("need one arg, the path to the Hershey font file")
+#end if
+
+hfont = hershey_font.load(sys.argv[1], .01)
+# hfont.user_data["hershey_line_width"] = .1 # test
+# print(type(hfont)) # debug
+
+glyph_size = 96
+margin = glyph_size / 3
+
+glyphs = hfont.user_data["hershey_glyphs"]
+nr_cols = math.ceil(math.sqrt(len(glyphs)))
+nr_rows = math.ceil(len(glyphs) / nr_cols)
+pix = qah.ImageSurface.create \
+  (
+    format = CAIRO.FORMAT_RGB24,
+    dimensions = round(Vector(nr_cols, nr_rows) * (glyph_size + margin) + Vector(margin, margin))
+  )
+ctx = qah.Context.create(pix)
+scaled_label_font = ctx.scaled_font
+text_colour = Colour.grey(0)
+grid_colour = Colour.from_hsva((.55, .7, 1))
+(ctx
+    .set_source_colour(Colour.grey(1))
+    .set_operator(CAIRO.OPERATOR_SOURCE)
+    .paint()
+)
+scaled_hfont = \
+    (ctx
+        .set_font_face(hfont)
+        .set_font_size(glyph_size)
+    ).scaled_font
+if debug :
+    sys.stderr.write("glyphs corners %s .. %s, font extents %s\n" % (repr(glyphs.min), repr(glyphs.max), repr(scaled_hfont.font_extents)))
+#end if
+row = 0
+col = 0
+for glyphnr in sorted(glyphs.keys()) :
+    ctx.matrix = \
+        Matrix.translate \
+          (
+            Vector(col, row) * (glyph_size + margin) + Vector(margin, margin) + Vector(0, glyph_size + scaled_hfont.font_extents.ascent) / 2
+          )
+    # ctx.rectangle(qah.Rect(- glyph_size / 2, - glyph_size / 2, glyph_size, glyph_size)).stroke() # debug
+    if False :
+        for pathseg in glyphs[glyphnr].path :
+            ctx.new_sub_path()
+            for point in pathseg :
+                ctx.line_to(point)
+            #end for
+        #end for
+        ctx.set_source_colour(text_colour)
+        ctx.set_line_width(1)
+        ctx.stroke()
+    else :
+        glyph = glyphs[glyphnr]
+        # sys.stderr.write("points[%d] = %s\n" % (glyphnr, repr(glyphs[glyphnr].path))) # debug
+        ctx.scaled_font = scaled_hfont
+        ctx.move_to((0, 0))
+        ctx.source_colour = text_colour
+        ctx.show_text(chr(glyphnr))
+        ctx.scaled_font = scaled_label_font
+        ctx.source_colour = grid_colour
+        if debug :
+            # indicate location of baseline and glyph origin and horizontal bounds
+            baseline_y = 0
+            (ctx
+                .save()
+                .transform(Matrix.scale(glyph_size * glyphs.scale))
+                .set_line_width(.5)
+                .new_path()
+                .move_to((glyph.min_x, baseline_y - glyph_size / 24))
+                .line_to((glyph.min_x, baseline_y))
+                .line_to((glyph.max_x, baseline_y))
+                .line_to((glyph.max_x, baseline_y - glyph_size / 24))
+                .move_to((0, baseline_y))
+                .line_to((0, baseline_y + glyph_size / 24))
+                .stroke()
+                .restore()
+            )
+        #end if
+    #end if
+    ctx.matrix = Matrix.translate(Vector(col, row) * (glyph_size + margin) + Vector(margin, margin * 1.5 + glyph_size))
+    ctx.move_to((0, 0))
+    ctx.source_colour = text_colour
+    ctx.show_text("%d" % glyphnr)
+    col += 1
+    if col == nr_cols :
+        row += 1
+        col = 0
+    #end if
+#end for
+
+pix.flush()
+pix.write_to_png("%s.png" % os.path.basename(sys.argv[0]))
