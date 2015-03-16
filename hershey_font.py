@@ -8,6 +8,10 @@ and can be found in /usr/share/hershey-fonts when that package is installed.
 
 This module requires my Qahirah wrapper for Cairo <https://github.com/ldo/qahirah>.
 """
+#+
+# Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+# Licensed under CC-BY <http://creativecommons.org/licenses/by/4.0/>.
+#-
 
 import qahirah as qah
 from qahirah import \
