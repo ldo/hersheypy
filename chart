@@ -1,6 +1,13 @@
 #!/usr/bin/python3
 #+
-# Test of using a Hershey font as a Cairo user font
+# Test of using a Hershey font as a Cairo user font. Invoke this
+# script as follows:
+#
+#     chart [--line-width=line-width] hershey-font-file
+#
+# where hershey-font-file is the full path to the Hershey font file,
+# and line-width is the relative line width to use for strokes
+# (defaults to 0.01 if omitted).
 #
 # Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>. This
 # script is licensed CC0
@@ -11,6 +18,7 @@
 import sys
 import os
 import math
+import getopt
 import qahirah as qah
 from qahirah import \
     CAIRO, \
@@ -21,11 +29,24 @@ import hershey_font
 
 debug = False
 
-if len(sys.argv) != 2 :
-    raise RuntimeError("need one arg, the path to the Hershey font file")
+opts, args = getopt.getopt \
+  (
+    sys.argv[1:],
+    "",
+    ["line-width="],
+  )
+line_width = 0.01
+for keyword, value in opts :
+    if keyword == "--line-width" :
+        line_width = float(value)
+    #end if
+#end for
+
+if len(args) != 1 :
+    raise getopt.GetoptError("need one arg, the path to the Hershey font file")
 #end if
 
-hfont = hershey_font.load(sys.argv[1], .01)
+hfont = hershey_font.load(args[0], line_width)
 # hfont.user_data["hershey_line_width"] = .1 # test
 # print(type(hfont)) # debug
 
