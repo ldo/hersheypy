@@ -3,7 +3,10 @@ These are vector fonts that must be stroked, not filled, so they cannot
 be represented directly in a common font format like TrueType. But
 they can be rendered using the user-font facility of the Cairo graphics API.
 
-This requires my Qahirah wrapper for Cairo <https://github.com/ldo/qahirah>.
+On Debian, the Hershey fonts come from the hershey-fonts-data package,
+and can be found in /usr/share/hershey-fonts when that package is installed.
+
+This module requires my Qahirah wrapper for Cairo <https://github.com/ldo/qahirah>.
 """
 
 import qahirah as qah
@@ -126,11 +129,10 @@ class HersheyGlyphs :
 #end HersheyGlyphs
 
 def make(glyphs, line_width, line_spacing = 1.0, kern = False) :
-    "constructs a qahirah.FontFace object from the specified HersheyGlyphs" \
+    "constructs a qahirah.UserFontFace object from the specified HersheyGlyphs" \
     " object. line_width is the width of lines for stroking, relative to font" \
-    " coordinates. kern indicates whether to do kerning in text layout (True" \
-    " is good for text lines, False is better for a font chart), and line_spacing" \
-    " is the relative spacing between text lines."
+    " coordinates (e.g. 0.01 is a reasonable value), and line_spacing is the" \
+    " relative spacing between text lines."
 
     def init_hershey(scaled_font, ctx, font_extents) :
         "UserFontFace init callback to define the font_extents."
@@ -224,10 +226,8 @@ def make(glyphs, line_width, line_spacing = 1.0, kern = False) :
 #end make
 
 def load(filename, line_width, line_spacing = 1.0, align_left = True, kern = False) :
-    "returns a qahirah.UserFontFace object representing the Hershey font" \
-    " loaded from the specified file, specified by full pathname. On Debian, the" \
-    " Hershey fonts come from the hershey-fonts-data package, and are installed" \
-    " in /usr/share/hershey-fonts."
+    "convenience wrapper which loads a HersheyGlyphs object from the specified file," \
+    " and invokes make with it and the specified and line_spacing parameters."
     glyphs = HersheyGlyphs(filename, align_left)
     return \
         make(glyphs, line_width, line_spacing, kern)
