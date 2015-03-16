@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #+
-# Test of using a Hershey font as a Cairo user font. Invoke this
-# script as follows:
+# Test of using a Hershey font as a Cairo user font: this script generates
+# a chart of all the glyphs in a Hershey font. Invoke it as follows:
 #
 #     chart [--line-width=line-width] hershey-font-file
 #

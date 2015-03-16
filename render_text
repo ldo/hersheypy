@@ -1,6 +1,16 @@
 #!/usr/bin/python3
 #+
-# Test of using a Hershey font as a Cairo user font
+# Test of using a Hershey font as a Cairo user font: this script renders
+# a line of text with the chosen font settings. Invoke it as follows:
+#
+#     render_text [opts] text fontfile outfile
+#
+# where valid [opts] are as follows:
+#
+#     --line-width=line-width
+#         specifies the relative thickness for drawing lines in the font.
+#     --text-size=text-size
+#         specifies the size at which to draw the text.
 #
 # Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>. This
 # script is licensed CC0
@@ -19,14 +29,28 @@ import hershey_font
 
 debug = False
 
-if len(sys.argv) != 6 :
-    raise getopt.GetoptError("usage: %s <text> <fontfile> <textsize> <linethick> <outfile>" % sys.argv[0])
-#end if
-text, fontfile, textsize, linethick, outfile = sys.argv[1:6]
-textsize = float(textsize)
-linethick = float(linethick)
+opts, args = getopt.getopt \
+  (
+    sys.argv[1:],
+    "",
+    ["line-width=", "text-size="],
+  )
+line_width = 0.01
+text_size = 72
+for keyword, value in opts :
+    if keyword == "--line-width" :
+        line_width = float(value)
+    elif keyword == "--text-size" :
+        text_size = float(value)
+    #end if
+#end for
 
-face = hershey_font.load(fontfile, linethick, kern = True)
+if len(args) != 3 :
+    raise getopt.GetoptError("usage: %s <text> <fontfile> <outfile>" % sys.argv[0])
+#end if
+text, fontfile, outfile = args
+
+face = hershey_font.load(fontfile, line_width)
 text_extents = \
     (qah.Context.create
       (
@@ -37,7 +61,7 @@ text_extents = \
           )
       )
         .set_font_face(face)
-        .set_font_size(textsize)
+        .set_font_size(text_size)
         .text_extents(text)
     )
 if debug :
@@ -56,7 +80,7 @@ ctx = \
         .set_source_colour(Colour.grey(0))
         .translate((- text_extents.x_bearing, - text_extents.y_bearing))
         .set_font_face(face)
-        .set_font_size(textsize)
+        .set_font_size(text_size)
         .move_to((0, 0))
         .show_text(text)
     )
