@@ -1,0 +1,31 @@
+The Hershey fonts <http://www.ghostscript.com/doc/current/Hershey.htm>
+are a set of fonts created by a Doctor A V Hershey in the 1960s. They
+are stroke fonts, defined in terms of drawing lines, rather than
+filling in curve outlines as with most scalable font formats. Thus,
+they cannot easily be represented in a common font format like TrueType
+or Type 1.
+
+I created this HersheyPy project as a testbed for the user-fonts
+functionality in Qahirah <https://github.com/ldo/qahirah>, my Python 3
+wrapper for the Cairo graphics library, and these scripts require you
+to have Qahirah installed. The enclosed “hershey_font.py” module provides
+the basic functionality of loading a Hershey font and creating a
+UserFontFace object from it that can be used to draw text into a
+Context, while the “chart” and “render_text” scripts are examples
+that make use of this module:
+
+* “chart” generates a chart of all the characters defined by a Hershey font
+* “render_text” renders a line of text in a Hershey font
+
+There is some additional debug functionality in the code that was
+put in to do a more thorough exercising of Qahirah, but which is not
+needed for “production” use and so has been disabled. Feel free to
+nosey around...
+
+Note that I do not include the Hershey fonts themselves: on a Debian
+system, the Hershey fonts come from the hershey-fonts-data package,
+and can be found in the /usr/share/hershey-fonts directory when that
+package is installed.
+
+Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
+2015 March 16
