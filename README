@@ -1,4 +1,4 @@
-The Hershey fonts <http://www.ghostscript.com/doc/current/Hershey.htm>
+The Hershey fonts <http://www.whence.com/hershey-fonts/>
 are a set of fonts created by a Doctor A V Hershey in the 1960s. They
 are stroke fonts, defined in terms of drawing lines, rather than
 filling in curve outlines as with most scalable font formats. Thus,
@@ -22,10 +22,11 @@ put in to do a more thorough exercising of Qahirah, but which is not
 needed for “production” use and so has been disabled. Feel free to
 nosey around...
 
-Note that I do not include the Hershey fonts themselves: on a Debian
+Note that I do not include the Hershey fonts themselves: you can
+download them from the link above. Or on a Debian unstable/testing
 system, the Hershey fonts come from the hershey-fonts-data package,
 and can be found in the /usr/share/hershey-fonts directory when that
 package is installed.
 
 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
-2015 March 16
+2015 March 17
