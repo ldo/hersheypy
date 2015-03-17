@@ -1,16 +1,24 @@
 #!/usr/bin/python3
 #+
 # Test of using a Hershey font as a Cairo user font: this script renders
-# a line of text with the chosen font settings. Invoke it as follows:
+# one or more lines of text with the chosen font settings. Invoke it as follows:
 #
 #     render_text [opts] text fontfile outfile
 #
-# where valid [opts] are as follows:
+# where text is the text to display (can contain embedded newlines), fontfile
+# is the full pathname of the Hershey font file, and outfile is the name to
+# give the generated PNG file. Valid [opts] are as follows:
 #
+#     --alignment=alignment
+#         specifies the alignment (only meaningful if there is more than one
+#         line of text): 0.0 for fully left-aligned, 0.5 for centred, 1.0 for
+#         fully-right-aligned. If omitted, defaults to 0.
 #     --line-width=line-width
 #         specifies the relative thickness for drawing lines in the font.
+#         If omitted, defaults to 0.01.
 #     --text-size=text-size
-#         specifies the size at which to draw the text.
+#         specifies the size at which to draw the text. If omitted, defaults
+#         to 72.
 #
 # Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>. This
 # script is licensed CC0
@@ -33,25 +41,31 @@ opts, args = getopt.getopt \
   (
     sys.argv[1:],
     "",
-    ["line-width=", "text-size="],
+    ["alignment=", "line-spacing=", "line-width=", "text-size="],
   )
+line_spacing = 1.0
 line_width = 0.01
 text_size = 72
+alignment = 0
 for keyword, value in opts :
-    if keyword == "--line-width" :
+    if keyword == "--alignment" :
+        alignment = float(value)
+    elif keyword == "--line-spacing" :
+        line_spacing = float(value)
+    elif keyword == "--line-width" :
         line_width = float(value)
     elif keyword == "--text-size" :
         text_size = float(value)
     #end if
 #end for
-
 if len(args) != 3 :
     raise getopt.GetoptError("usage: %s <text> <fontfile> <outfile>" % sys.argv[0])
 #end if
 text, fontfile, outfile = args
+text = text.split("\n")
+face = hershey_font.load(fontfile, line_width = line_width, line_spacing = line_spacing)
 
-face = hershey_font.load(fontfile, line_width)
-text_extents = \
+ctx = \
     (qah.Context.create
       (
         qah.ImageSurface.create
@@ -62,15 +76,16 @@ text_extents = \
       )
         .set_font_face(face)
         .set_font_size(text_size)
-        .text_extents(text)
     )
+font_extents = ctx.font_extents
+text_widths = list((t.width + t.x_bearing) for line in text for t in (ctx.text_extents(line),))
 if debug :
-    sys.stderr.write("text extents = %s\n" % repr(text_extents))
+    sys.stderr.write("font extents = %s, widths = %s\n" % (repr(font_extents), repr(text_widths)))
 #end if
 pix = qah.ImageSurface.create \
   (
     format = CAIRO.FORMAT_RGB24,
-    dimensions = round(Vector(text_extents.width, text_extents.height))
+    dimensions = round(Vector(max(text_widths), font_extents.height * len(text)))
   )
 ctx = \
     (qah.Context.create(pix)
@@ -78,24 +93,34 @@ ctx = \
         .set_operator(CAIRO.OPERATOR_SOURCE)
         .paint()
         .set_source_colour(Colour.grey(0))
-        .translate((- text_extents.x_bearing, - text_extents.y_bearing))
         .set_font_face(face)
         .set_font_size(text_size)
-        .move_to((0, 0))
-        .show_text(text)
     )
-if debug :
-    # show baseline and glyphs details
-    glyphs, clusters, cluster_flags = \
-        (ctx
-            .set_source_colour(Colour.from_hsva((.55, .7, 1)))
-            .move_to((0, 0))
-            .line_to((pix.width, 0))
-            .stroke()
-            .scaled_font.text_to_glyphs((0, 0), text, True)
-        )
-    print("glyphs[%d] = %s\nclusters[%d] = %s\ncluster_flags = %d" % (len(glyphs), repr(glyphs), len(clusters), repr(clusters), cluster_flags)) # debug
-#end if
+for i, line in enumerate(text) :
+    ctx.move_to \
+      ((
+        (pix.width - text_widths[i]) * alignment,
+        i * font_extents.height + font_extents.ascent
+      ))
+    ctx.show_text(line)
+    if debug :
+        # show baseline and glyphs details
+        glyphs, clusters, cluster_flags = \
+            (ctx
+                .set_source_colour(Colour.from_hsva((.55, .7, 1)))
+                .move_to
+                  ((
+                    0,
+                    i * font_extents.height + font_extents.ascent
+                  ))
+                .rel_line_to((pix.width, 0))
+                .stroke()
+                .scaled_font.text_to_glyphs((0, 0), line, True)
+            )
+        print("glyphs[%d] = %s\nclusters[%d] = %s\ncluster_flags = %d" % (len(glyphs), repr(glyphs), len(clusters), repr(clusters), cluster_flags)) # debug
+        ctx.set_source_colour(Colour.grey(0))
+    #end if
+#end for
 pix.flush()
 pix.write_to_png(outfile)
 sys.stderr.write("image written to %s\n" % outfile) # debug
