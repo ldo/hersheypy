@@ -262,7 +262,7 @@ class HersheyGlyphs :
                 "gothgrt" : make_enc(uc = 3301, lc = 3401, digits = 3700),
                 "gothitt" : make_enc(uc = 3801, lc = 3901, digits = 3700),
                 "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
-                "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200),
+                "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200, sym2 = 3210),
                 "scriptc" : make_enc(uc = 2551, lc = 2651, digits = 2750, sym2 = 2760),
             }
         return \
