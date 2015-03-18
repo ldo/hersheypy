@@ -13,6 +13,7 @@ This module requires my Qahirah wrapper for Cairo <https://github.com/ldo/qahira
 # Licensed under CC-BY <http://creativecommons.org/licenses/by/4.0/>.
 #-
 
+import os
 import qahirah as qah
 from qahirah import \
     CAIRO, \
@@ -23,9 +24,11 @@ debug = False
 
 class HersheyGlyphs :
     "container for decoded data from a Hershey font file. glyphs is a mapping from glyph" \
-    " codes to HersheyGlyphs.Glyph objects."
+    " codes to HersheyGlyphs.Glyph objects, while encoding, if not None, provides a mapping" \
+    " from Unicode character codes to glyph numbers. If encoding is None, then glyph numbers" \
+    " can be directly interpreted as ASCII character codes."
 
-    __slots__ = ("glyphs", "baseline_y", "min", "max", "scale")
+    __slots__ = ("glyphs", "baseline_y", "encoding", "min", "max", "scale")
 
     class Glyph :
         "information about a single glyph. min_x and max_x are the minimum and maximum" \
@@ -113,6 +116,8 @@ class HersheyGlyphs :
         width = max_x - min_x
         height = max_y - min_y
         self.scale = 1 / max(width, height)
+        basename = os.path.splitext(os.path.basename(filename))[0]
+        self.encoding = self.encodings.get(basename)
     #end __init__
 
     def __len__(self) :
@@ -130,13 +135,155 @@ class HersheyGlyphs :
             self.glyphs.keys()
     #end keys
 
+    def make_encodings() :
+        # make ASCII encodings for fonts with non-ASCII glyph numbers
+        # “Understanding is compression.” -- Gregory Chaitin
+        syms1 = \
+            { # always in the same place, sometimes subsetted
+                "\\" : 804,
+                "_" : 999,
+                "[" : 2223,
+                "]" : 2224,
+                "{" : 2225,
+                "}" : 2226,
+                "|" : 2229, # or U+007C?
+                "<" : 2241,
+                ">" : 2242,
+                "~" : 2246,
+                "↑" : 2262, # non-ASCII
+                "^" : 2262, # ASCII alternative to above
+                "%" : 2271,
+                "@" : 2273,
+                "#" : 2275,
+            }
+        syms2 = \
+            { # these sometimes moved/subsetted
+                "." : 3710,
+                "," : 3711,
+                ":" : 3712,
+                ";" : 3713,
+                "!" : 3714,
+                "?" : 3715,
+                "‘" : 3716, # non-ASCII
+                "’" : 3717, # non-ASCII
+                # "'" : 3717, # should I offer ASCII alternative to above?
+                "&" : 3718,
+                "$" : 3719,
+                "/" : 3720,
+                "(" : 3721,
+                ")" : 3722,
+                "*" : 3723,
+                "-" : 3724,
+                "+" : 3725,
+                "=" : 3726,
+                "\"" : 3728,
+                "°" : 3729, # non-ASCII
+            }
+
+        def make_enc(uc, lc, digits, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, extra = None) :
+            # makes an encoding given starting points for common glyph ranges
+            # plus various optional exceptions
+            enc = {}
+            for k in syms1 :
+                if sym1_except == None or k not in sym1_except :
+                    enc[ord(k)] = syms1[k]
+                #end if
+            #end for
+            for k in syms2 :
+                if sym2_except == None or k not in sym2_except :
+                    enc[ord(k)] = syms2[k] - 3710 + sym2
+                #end if
+            #end for
+            for i in range(26) :
+                enc[ord("A") + i] = i + uc
+                enc[ord("a") + i] = i + lc
+            #end for
+            if space == None :
+                space = digits - 1
+            #end if
+            enc[ord(" ")] = space
+            for i in range(10) :
+                enc[ord("0") + i] = digits + i
+            #end for
+            if extra != None :
+                for k in extra :
+                    enc[ord(k)] = extra[k]
+                #end for
+            #end if
+            return \
+                enc
+        #end make_enc
+
+        encodings = \
+            { # key is basename of font file without .jhf extension
+                "rowmans" :
+                    make_enc
+                      (
+                        uc = 501,
+                        lc = 601,
+                        digits = 700,
+                        sym1_except = {"#", "|"},
+                        sym2 = 710,
+                        sym2_except = {"‘", "’", "&", "*", "\"", "°"},
+                        extra =
+                            {
+                                "\"" : 717,
+                                "°" : 718,
+                                "|" : 723, # or U+007C?
+                                "‘" : 730,
+                                "’" : 731,
+                                "#" : 733,
+                                "&" : 734,
+                                "*" : 2219,
+                            },
+                      ),
+                "scripts" :
+                    make_enc
+                      (
+                        uc = 551,
+                        lc = 651,
+                        digits = 2750,
+                        space = 699,
+                        sym1_except = {"#", "|"},
+                        sym2 = 2760,
+                        sym2_except = {".", "-", "+", "=", "°"},
+                        extra =
+                            {
+                                "." : 710,
+                                "°" : 718,
+                                "|" : 723, # or U+007C?
+                                "-" : 724,
+                                "+" : 725,
+                                "=" : 726,
+                                "#" : 733,
+                            },
+                      ),
+                "gothgbt" : make_enc(uc = 3501, lc = 3601, digits = 3700),
+                "gothgrt" : make_enc(uc = 3301, lc = 3401, digits = 3700),
+                "gothitt" : make_enc(uc = 3801, lc = 3901, digits = 3700),
+                "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
+                "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200),
+                "scriptc" : make_enc(uc = 2551, lc = 2651, digits = 2750, sym2 = 2760),
+            }
+        return \
+            encodings
+    #end make_encodings
+
+    encodings = make_encodings()
+
+    del make_encodings
+
 #end HersheyGlyphs
 
-def make(glyphs, line_width, line_spacing = 1.0, kern = False) :
+def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = False) :
     "constructs a qahirah.UserFontFace object from the specified HersheyGlyphs" \
     " object. line_width is the width of lines for stroking, relative to font" \
     " coordinates (e.g. 0.01 is a reasonable value), and line_spacing is the" \
     " relative spacing between text lines."
+
+    if glyphs.encoding == None :
+        use_encoding = False # no encoding to use
+    #end if
 
     def init_hershey(scaled_font, ctx, font_extents) :
         "UserFontFace init callback to define the font_extents."
@@ -181,9 +328,13 @@ def make(glyphs, line_width, line_spacing = 1.0, kern = False) :
 
     def unicode_to_glyph(scaled_font, unicode) :
         "UserFontFace character-code-to-glyph mapping callback."
-        # dummy, just to test mapping callback actually works
+        if use_encoding :
+            glyph = glyphs.encoding.get(unicode, 0)
+        else :
+            glyph = unicode
+        #end if
         return \
-            (CAIRO.STATUS_SUCCESS, unicode)
+            (CAIRO.STATUS_SUCCESS, glyph)
     #end unicode_to_glyph
 
     def text_to_glyphs(scaled_font, text, cluster_mapping) :
@@ -229,10 +380,10 @@ def make(glyphs, line_width, line_spacing = 1.0, kern = False) :
         the_font
 #end make
 
-def load(filename, line_width, line_spacing = 1.0, align_left = True, kern = False) :
+def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_left = True, kern = False) :
     "convenience wrapper which loads a HersheyGlyphs object from the specified file," \
     " and invokes make with it and the specified and line_spacing parameters."
-    glyphs = HersheyGlyphs(filename, align_left)
+    glyphs = HersheyGlyphs(filename, align_left = align_left)
     return \
-        make(glyphs, line_width, line_spacing, kern)
+        make(glyphs, line_width, line_spacing, use_encoding = use_encoding, kern = kern)
 #end load

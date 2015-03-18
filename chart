@@ -3,11 +3,14 @@
 # Test of using a Hershey font as a Cairo user font: this script generates
 # a chart of all the glyphs in a Hershey font. Invoke it as follows:
 #
-#     chart [--line-width=line-width] hershey-font-file
+#     chart [--line-width=line-width] [--no-encoding] hershey-font-file
 #
 # where hershey-font-file is the full path to the Hershey font file,
 # and line-width is the relative line width to use for strokes
-# (defaults to 0.01 if omitted).
+# (defaults to 0.01 if omitted). If --no-encoding is specified, then
+# the glyphs are displayed by original glyph number; if it is omitted,
+# then they are displayed by Unicode character code, together with the
+# glyph number (if this differs from ASCII encoding).
 #
 # Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>. This
 # script is licensed CC0
@@ -33,12 +36,15 @@ opts, args = getopt.getopt \
   (
     sys.argv[1:],
     "",
-    ["line-width="],
+    ["line-width=", "no-encoding"],
   )
 line_width = 0.01
+use_encoding = True
 for keyword, value in opts :
     if keyword == "--line-width" :
         line_width = float(value)
+    elif keyword == "--no-encoding" :
+        use_encoding = False
     #end if
 #end for
 
@@ -46,7 +52,7 @@ if len(args) != 1 :
     raise getopt.GetoptError("need one arg, the path to the Hershey font file")
 #end if
 
-hfont = hershey_font.load(args[0], line_width)
+hfont = hershey_font.load(args[0], line_width, use_encoding = use_encoding)
 # hfont.user_data["hershey_line_width"] = .1 # test
 # print(type(hfont)) # debug
 
@@ -80,7 +86,20 @@ if debug :
 #end if
 row = 0
 col = 0
-for glyphnr in sorted(glyphs.keys()) :
+if glyphs.encoding == None :
+    use_encoding = False
+#end if
+if use_encoding :
+    seq = glyphs.encoding.keys()
+else :
+    seq = glyphs.keys()
+#end if
+for code in sorted(seq) :
+    if use_encoding :
+        glyphnr = glyphs.encoding[code]
+    else :
+        glyphnr = code
+    #end if
     ctx.matrix = \
         Matrix.translate \
           (
@@ -103,7 +122,7 @@ for glyphnr in sorted(glyphs.keys()) :
         ctx.scaled_font = scaled_hfont
         ctx.move_to((0, 0))
         ctx.source_colour = text_colour
-        ctx.show_text(chr(glyphnr))
+        ctx.show_text(chr(code))
         ctx.scaled_font = scaled_label_font
         ctx.source_colour = grid_colour
         if debug :
@@ -128,7 +147,11 @@ for glyphnr in sorted(glyphs.keys()) :
     ctx.matrix = Matrix.translate(Vector(col, row) * (glyph_size + margin) + Vector(margin, margin * 1.5 + glyph_size))
     ctx.move_to((0, 0))
     ctx.source_colour = text_colour
-    ctx.show_text("%d" % glyphnr)
+    if use_encoding :
+        ctx.show_text("%d => %s" % (code, glyphnr))
+    else :
+        ctx.show_text("%d" % glyphnr)
+    #end if
     col += 1
     if col == nr_cols :
         row += 1
