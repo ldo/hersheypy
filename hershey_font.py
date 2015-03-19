@@ -220,6 +220,7 @@ class HersheyGlyphs :
                         95 : 0x42c,
                         96 : 0x426,
                         101 : 0x439,
+                        105 : 0x438,
                     },
                 "greeka" :
                     {
