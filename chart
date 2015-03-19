@@ -148,7 +148,7 @@ for code in sorted(seq) :
     ctx.move_to((0, 0))
     ctx.source_colour = text_colour
     if use_encoding :
-        ctx.show_text("%d => %s" % (code, glyphnr))
+        ctx.show_text("U+%04X => %s" % (code, glyphnr))
     else :
         ctx.show_text("%d" % glyphnr)
     #end if
