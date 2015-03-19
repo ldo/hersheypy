@@ -180,34 +180,103 @@ class HersheyGlyphs :
                 "°" : 3729, # non-ASCII
             }
 
-        def make_enc(uc, lc, digits, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, extra = None) :
+        redirects = \
+            {
+                "cyrilc_1" : {}, # filled in below
+                "cyrillic" :
+                    {
+                        36 : 0x42b,
+                        37 : 0x446,
+                        38 : 0x44b,
+                        65 : 0x410,
+                        66 : 0x411,
+                        67 : 0x42d,
+                        68 : 0x414,
+                        69 : 0x418,
+                        70 : 0x424,
+                        71 : 0x413,
+                        72 : 0x416,
+                        73 : 0x419, # actually looks like 0x418
+                        74 : 0x427,
+                        75 : 0x41a,
+                        76 : 0x41b,
+                        77 : 0x41c,
+                        78 : 0x41d,
+                        79 : 0x41e,
+                        80 : 0x41f,
+                        81 : 0x428,
+                        82 : 0x420,
+                        83 : 0x421,
+                        84 : 0x422,
+                        85 : 0x42e,
+                        86 : 0x412,
+                        87 : 0x429,
+                        88 : 0x425,
+                        89 : 0x423,
+                        90 : 0x417,
+                        91 : 0x415,
+                        93 : 0x42a,
+                        94 : 0x42f,
+                        95 : 0x42c,
+                        96 : 0x426,
+                        101 : 0x439,
+                    },
+            }
+        for ch in range(0, 26) :
+            redirects["cyrilc_1"][ch + ord("A")] = ch + 0x410
+            redirects["cyrilc_1"][ch + ord("a")] = ch + 0x430
+        #end for
+        for ch in range(65, 92) :
+            if ch != 69 and ch != 73 :
+                redirects["cyrillic"][ch + 32] = redirects["cyrillic"][ch] + 32
+            #end if
+        #end for
+        for ch in range(93, 96) :
+            redirects["cyrillic"][ch + 31] = redirects["cyrillic"][ch] + 32
+        #end for
+
+        def make_enc(uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, extra = None, redirect = None, ascii = False) :
             # makes an encoding given starting points for common glyph ranges
             # plus various optional exceptions
             enc = {}
-            for k in syms1 :
-                if sym1_except == None or k not in sym1_except :
-                    enc[ord(k)] = syms1[k]
+            if ascii :
+                for k in range(32, 128) :
+                    enc[k] = k
+                #end for
+            else :
+                for k in syms1 :
+                    if sym1_except == None or k not in sym1_except :
+                        enc[ord(k)] = syms1[k]
+                    #end if
+                #end for
+                for k in syms2 :
+                    if sym2_except == None or k not in sym2_except :
+                        enc[ord(k)] = syms2[k] - 3710 + sym2
+                    #end if
+                #end for
+                for i in range(26) :
+                    enc[ord("A") + i] = i + uc
+                    enc[ord("a") + i] = i + lc
+                #end for
+                if space == None :
+                    space = digits - 1
                 #end if
-            #end for
-            for k in syms2 :
-                if sym2_except == None or k not in sym2_except :
-                    enc[ord(k)] = syms2[k] - 3710 + sym2
-                #end if
-            #end for
-            for i in range(26) :
-                enc[ord("A") + i] = i + uc
-                enc[ord("a") + i] = i + lc
-            #end for
-            if space == None :
-                space = digits - 1
+                enc[ord(" ")] = space
+                for i in range(10) :
+                    enc[ord("0") + i] = digits + i
+                #end for
             #end if
-            enc[ord(" ")] = space
-            for i in range(10) :
-                enc[ord("0") + i] = digits + i
-            #end for
             if extra != None :
                 for k in extra :
                     enc[ord(k)] = extra[k]
+                #end for
+            #end if
+            if redirect != None :
+                for k in redirect :
+                    enc[redirect[k]] = enc[k]
+                #end for
+                for k in redirect :
+                    del enc[k]
                 #end for
             #end if
             return \
@@ -216,6 +285,33 @@ class HersheyGlyphs :
 
         encodings = \
             { # key is basename of font file without .jhf extension
+                "cyrilc_1" :
+                    make_enc
+                      (
+                        uc = 2801,
+                        lc = 2901,
+                        digits = 2200,
+                        sym2 = 2210,
+                        sym2_except = {"‘", "’", "&", "$", "*", "-", "+", "=", "\"", "°"},
+                        extra =
+                            {
+                                "‘" : 2252,
+                                "’" : 2251,
+                                "&" : 2272,
+                                "$" : 2274,
+                                "*" : 2219,
+                                "-" : 2231,
+                                "+" : 2232,
+                                "=" : 2238,
+                                "°" : 2218,
+                            },
+                        redirect = redirects["cyrilc_1"]
+                      ),
+                "cyrillic" : make_enc(ascii = True, redirect = redirects["cyrillic"]),
+                "gothgbt" : make_enc(uc = 3501, lc = 3601, digits = 3700),
+                "gothgrt" : make_enc(uc = 3301, lc = 3401, digits = 3700),
+                "gothitt" : make_enc(uc = 3801, lc = 3901, digits = 3700),
+                "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
                 "rowmans" :
                     make_enc
                       (
@@ -237,6 +333,8 @@ class HersheyGlyphs :
                                 "*" : 2219,
                             },
                       ),
+                "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200, sym2 = 3210),
+                "scriptc" : make_enc(uc = 2551, lc = 2651, digits = 2750, sym2 = 2760),
                 "scripts" :
                     make_enc
                       (
@@ -258,12 +356,6 @@ class HersheyGlyphs :
                                 "#" : 733,
                             },
                       ),
-                "gothgbt" : make_enc(uc = 3501, lc = 3601, digits = 3700),
-                "gothgrt" : make_enc(uc = 3301, lc = 3401, digits = 3700),
-                "gothitt" : make_enc(uc = 3801, lc = 3901, digits = 3700),
-                "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
-                "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200, sym2 = 3210),
-                "scriptc" : make_enc(uc = 2551, lc = 2651, digits = 2750, sym2 = 2760),
             }
         return \
             encodings
