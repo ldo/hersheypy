@@ -221,6 +221,38 @@ class HersheyGlyphs :
                         96 : 0x426,
                         101 : 0x439,
                     },
+                "greeka" :
+                    {
+                        65 : 0x391,
+                        66 : 0x392,
+                        67 : 0x3a7,
+                        68 : 0x394,
+                        69 : 0x395,
+                        70 : 0x3a6,
+                        71 : 0x393,
+                        72 : 0x397,
+                        73 : 0x399,
+                        74 : None,
+                        75 : 0x39a,
+                        76 : 0x39b,
+                        77 : 0x39c,
+                        78 : 0x39d,
+                        79 : 0x39f,
+                        80 : 0x3a0,
+                        81 : 0x398,
+                        82 : 0x3a1,
+                        83 : 0x3a3,
+                        84 : 0x3a4,
+                        85 : 0x3a5,
+                        86 : None,
+                        87 : 0x3a9,
+                        88 : 0x39e,
+                        89 : 0x3a8,
+                        90 : 0x396,
+                        106 : None,
+                        118 : None,
+                    },
+                "greeks" : {}, # filled in below
             }
         for ch in range(0, 26) :
             redirects["cyrilc_1"][ch + ord("A")] = ch + 0x410
@@ -234,16 +266,69 @@ class HersheyGlyphs :
         for ch in range(93, 96) :
             redirects["cyrillic"][ch + 31] = redirects["cyrillic"][ch] + 32
         #end for
+        for ch in range(0, 26) :
+            if ch != 9 and ch != 21 :
+                redirects["greeka"][ch + 65 + 32] = redirects["greeka"][ch + 65] + 32
+            #end if
+        #end for
+        for ch in range(0, 17) :
+            redirects["greeks"][ch + 65] = ch + 0x391
+            redirects["greeks"][ch + 97] = ch + 0x3b1
+        #end for
+        for ch in range(17, 24) :
+            redirects["greeks"][ch + 65] = ch + 0x392
+            redirects["greeks"][ch + 97] = ch + 0x3b2
+        #end for
+        greek_extra = \
+            {
+                chr(0x00b7) : 74, # middle dot, or is it 0x2022 bullet?
+                "°" : 86,
+                "×" : 106,
+                "÷" : 118,
+            }
 
-        def make_enc(uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, extra = None, redirect = None, ascii = False) :
+        def make_enc(preset = None, uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, nr_letters = 26, extra = None, redirect = None) :
             # makes an encoding given starting points for common glyph ranges
             # plus various optional exceptions
             enc = {}
-            if ascii :
+            if preset == "ascii" :
                 for k in range(32, 128) :
                     enc[k] = k
                 #end for
             else :
+                if preset == "rowmans" :
+                    digits = 700
+                    sym1_except = {"#", "|"}
+                    sym2 = 710
+                    sym2_except = {"‘", "’", "&", "*", "\"", "°"}
+                    extra = \
+                        {
+                            "\"" : 717,
+                            "°" : 718,
+                            "|" : 723, # or U+007C?
+                            "‘" : 730,
+                            "’" : 731,
+                            "#" : 733,
+                            "&" : 734,
+                            "*" : 2219,
+                        }
+                elif preset == "greekc" :
+                    digits = 2200
+                    sym2 = 2210
+                    sym2_except = {"‘", "’", "&", "$", "*", "-", "+", "=", "\"", "°"}
+                    extra = \
+                        {
+                            "‘" : 2252,
+                            "’" : 2251,
+                            "&" : 2272,
+                            "$" : 2274,
+                            "*" : 2219,
+                            "-" : 2231,
+                            "+" : 2232,
+                            "=" : 2238,
+                            "°" : 2218,
+                        }
+                #end if
                 for k in syms1 :
                     if sym1_except == None or k not in sym1_except :
                         enc[ord(k)] = syms1[k]
@@ -254,7 +339,7 @@ class HersheyGlyphs :
                         enc[ord(k)] = syms2[k] - 3710 + sym2
                     #end if
                 #end for
-                for i in range(26) :
+                for i in range(nr_letters) :
                     enc[ord("A") + i] = i + uc
                     enc[ord("a") + i] = i + lc
                 #end for
@@ -273,7 +358,10 @@ class HersheyGlyphs :
             #end if
             if redirect != None :
                 for k in redirect :
-                    enc[redirect[k]] = enc[k]
+                    redir = redirect[k]
+                    if redir != None :
+                        enc[redir] = enc[k]
+                    #end if
                 #end for
                 for k in redirect :
                     del enc[k]
@@ -288,51 +376,37 @@ class HersheyGlyphs :
                 "cyrilc_1" :
                     make_enc
                       (
+                        preset = "greekc",
                         uc = 2801,
                         lc = 2901,
-                        digits = 2200,
-                        sym2 = 2210,
-                        sym2_except = {"‘", "’", "&", "$", "*", "-", "+", "=", "\"", "°"},
-                        extra =
-                            {
-                                "‘" : 2252,
-                                "’" : 2251,
-                                "&" : 2272,
-                                "$" : 2274,
-                                "*" : 2219,
-                                "-" : 2231,
-                                "+" : 2232,
-                                "=" : 2238,
-                                "°" : 2218,
-                            },
                         redirect = redirects["cyrilc_1"]
                       ),
-                "cyrillic" : make_enc(ascii = True, redirect = redirects["cyrillic"]),
+                "cyrillic" : make_enc(preset = "ascii", redirect = redirects["cyrillic"]),
                 "gothgbt" : make_enc(uc = 3501, lc = 3601, digits = 3700),
                 "gothgrt" : make_enc(uc = 3301, lc = 3401, digits = 3700),
                 "gothitt" : make_enc(uc = 3801, lc = 3901, digits = 3700),
-                "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
-                "rowmans" :
+                "greek" :
+                    make_enc(preset = "ascii", extra = greek_extra, redirect = redirects["greeka"]),
+                "greekc" :
                     make_enc
                       (
-                        uc = 501,
-                        lc = 601,
-                        digits = 700,
-                        sym1_except = {"#", "|"},
-                        sym2 = 710,
-                        sym2_except = {"‘", "’", "&", "*", "\"", "°"},
-                        extra =
-                            {
-                                "\"" : 717,
-                                "°" : 718,
-                                "|" : 723, # or U+007C?
-                                "‘" : 730,
-                                "’" : 731,
-                                "#" : 733,
-                                "&" : 734,
-                                "*" : 2219,
-                            },
+                        preset = "greekc",
+                        uc = 2027,
+                        lc = 2127,
+                        nr_letters = 24,
+                        redirect = redirects["greeks"]
                       ),
+                "greeks" :
+                    make_enc
+                      (
+                        preset = "rowmans",
+                        uc = 527,
+                        lc = 627,
+                        nr_letters = 24,
+                        redirect = redirects["greeks"]
+                      ),
+                "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
+                "rowmans" : make_enc(preset = "rowmans", uc = 501, lc = 601),
                 "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200, sym2 = 3210),
                 "scriptc" : make_enc(uc = 2551, lc = 2651, digits = 2750, sym2 = 2760),
                 "scripts" :
@@ -356,6 +430,8 @@ class HersheyGlyphs :
                                 "#" : 733,
                             },
                       ),
+                "timesg" :
+                    make_enc(preset = "ascii", extra = greek_extra, redirect = redirects["greeka"]),
             }
         return \
             encodings
