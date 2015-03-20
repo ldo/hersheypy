@@ -546,7 +546,7 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
                 scaled_font.user_data.get
                   (
                     "hershey_line_width",
-                    the_font.user_data["hershey_line_width"]
+                    scaled_font.font_face.user_data["hershey_line_width"]
                   )
               )
             ctx.stroke()
