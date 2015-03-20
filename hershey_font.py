@@ -377,6 +377,7 @@ class HersheyGlyphs :
 
         encodings = \
             { # key is basename of font file without .jhf extension
+                # "cursive" : ASCII
                 "cyrilc_1" :
                     make_enc
                       (
@@ -386,8 +387,13 @@ class HersheyGlyphs :
                         redirect = redirects["cyrilc_1"]
                       ),
                 "cyrillic" : make_enc(preset = "ascii", redirect = redirects["cyrillic"], redirect2 = fix_tilde),
+                # "futural" : ASCII
+                # "futuram" : ASCII
                 "gothgbt" : make_enc(uc = 3501, lc = 3601, digits = 3700),
                 "gothgrt" : make_enc(uc = 3301, lc = 3401, digits = 3700),
+                # "gothiceng" : ASCII
+                # "gothicger" : ASCII
+                # "gothicita" : ASCII
                 "gothitt" : make_enc(uc = 3801, lc = 3901, digits = 3700),
                 "greek" :
                     make_enc(preset = "ascii", extra = greek_extra, redirect = redirects["greeka"]),
@@ -487,8 +493,12 @@ class HersheyGlyphs :
                                 "#" : 733,
                             },
                       ),
+                # "timesi" : ASCII
+                # "timesib" : ASCII
                 "timesg" :
                     make_enc(preset = "ascii", extra = greek_extra, redirect = redirects["greeka"]),
+                # "timesr" : ASCII
+                # "timesrb" : ASCII
             }
         return \
             encodings
