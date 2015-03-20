@@ -557,7 +557,7 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
             glyph = glyphs.encoding.get(unicode, 0)
         else :
             # these fonts define printable ASCII codes only
-            if unicode >= 32 and unicode < 127 :
+            if unicode >= 32 and unicode < 128 :
                 glyph = unicode
             else :
                 glyph = 0
