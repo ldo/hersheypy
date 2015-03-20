@@ -409,6 +409,28 @@ class HersheyGlyphs :
                         nr_letters = 24,
                         redirect = redirects["greeks"]
                       ),
+                "markers" :
+                    {
+                        32 : 32,
+                        0x25ef : 65, # large circle, or 0x25cb white circle
+                        0x2b1c : 66, # white large square, or 0x25a1 white square
+                        0x25be : 67, # white up-pointing triangle
+                        0x25ca : 68, # lozenge, or perhaps 0x2b28 white medium lozenge
+                        0x2606 : 69, # white star
+                        ord("+") : 71,
+                        ord("×") : 72,
+                        ord("*") : 73,
+                        0x25cf : 74, # black circle
+                        0x25a0 : 75, # black square
+                        0x25be : 76, # black up-pointing triangle
+                        0x25c0 : 77, # black left-pointing triangle
+                        0x25bc : 78, # black down-pointing triangle
+                        0x25b6 : 79, # black right-pointing triangle
+                        0x26d8 : 80, # heavy white down-pointing triangle
+                      # no good match for these, put in private-use area:
+                        0xe000 : 70, # like white plus sign
+                      # rest are either blank or duplicates
+                    },
                 "meteorology" :
                     make_enc
                       (
