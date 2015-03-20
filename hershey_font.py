@@ -288,7 +288,7 @@ class HersheyGlyphs :
                 "÷" : 118,
             }
 
-        def make_enc(preset = None, uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, nr_letters = 26, extra = None, redirect = None) :
+        def make_enc(preset = None, uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, nr_letters = 26, extra = None, redirect = None, redirect2 = None) :
             # makes an encoding given starting points for common glyph ranges
             # plus various optional exceptions
             enc = {}
@@ -357,16 +357,18 @@ class HersheyGlyphs :
                     enc[ord(k)] = extra[k]
                 #end for
             #end if
-            if redirect != None :
-                for k in redirect :
-                    redir = redirect[k]
-                    if redir != None :
-                        enc[redir] = enc[k]
-                    #end if
-                #end for
-                for k in redirect :
-                    del enc[k]
-                #end for
+            for r in redirect, redirect2 :
+                if r != None :
+                    for k in r :
+                        redir = r[k]
+                        if redir != None :
+                            enc[redir] = enc[k]
+                        #end if
+                    #end for
+                    for k in r :
+                        del enc[k]
+                    #end for
+                #end if
             #end if
             return \
                 enc
@@ -411,7 +413,8 @@ class HersheyGlyphs :
                       (
                         preset = "ascii",
                         redirect =
-                            { # best approximations I could find
+                            {
+                              # best approximations I could find
                                 34 : 0x02609, # sun
                                 35 : 0x0204e, # low asterisk
                                 36 : 0x025b2, # black up-pointing triangle
@@ -433,7 +436,8 @@ class HersheyGlyphs :
                                 62 : 0x0e00d, # 0x025df, # lower left quadrant circular arc
                                 94 : 0x0e00e, # looks exactly like letter S
                                 96 : 0x0e010, # looks like backward letter S on its side
-                            }
+                            },
+                        redirect2 = {127 : 126}, # to be done after above
                       ),
                 "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
                 "rowmans" : make_enc(preset = "rowmans", uc = 501, lc = 601),
