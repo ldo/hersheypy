@@ -287,6 +287,7 @@ class HersheyGlyphs :
                 "×" : 106,
                 "÷" : 118,
             }
+        fix_tilde = {127 : 126}
 
         def make_enc(preset = None, uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, nr_letters = 26, extra = None, redirect = None, redirect2 = None) :
             # makes an encoding given starting points for common glyph ranges
@@ -384,7 +385,7 @@ class HersheyGlyphs :
                         lc = 2901,
                         redirect = redirects["cyrilc_1"]
                       ),
-                "cyrillic" : make_enc(preset = "ascii", redirect = redirects["cyrillic"]),
+                "cyrillic" : make_enc(preset = "ascii", redirect = redirects["cyrillic"], redirect2 = fix_tilde),
                 "gothgbt" : make_enc(uc = 3501, lc = 3601, digits = 3700),
                 "gothgrt" : make_enc(uc = 3301, lc = 3401, digits = 3700),
                 "gothitt" : make_enc(uc = 3801, lc = 3901, digits = 3700),
@@ -437,7 +438,7 @@ class HersheyGlyphs :
                                 94 : 0x0e00e, # looks exactly like letter S
                                 96 : 0x0e010, # looks like backward letter S on its side
                             },
-                        redirect2 = {127 : 126}, # to be done after above
+                        redirect2 = fix_tilde,
                       ),
                 "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
                 "rowmans" : make_enc(preset = "rowmans", uc = 501, lc = 601),
