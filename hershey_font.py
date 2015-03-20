@@ -541,7 +541,14 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
                     ctx.line_to((point - Vector(0, glyphs.baseline_y)) * glyphs.scale)
                 #end for
             #end for
-            ctx.set_line_width(the_font.user_data["hershey_line_width"])
+            ctx.set_line_width \
+              (
+                scaled_font.user_data.get
+                  (
+                    "hershey_line_width",
+                    the_font.user_data["hershey_line_width"]
+                  )
+              )
             ctx.stroke()
             text_extents.x_bearing = glyph_entry.min_x * glyphs.scale
             text_extents.x_advance = (glyph_entry.max_x - glyph_entry.min_x) * glyphs.scale
