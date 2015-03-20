@@ -18,6 +18,7 @@ import qahirah as qah
 from qahirah import \
     CAIRO, \
     Glyph, \
+    Matrix, \
     Vector
 
 debug = False
@@ -43,6 +44,19 @@ class HersheyGlyphs :
             self.max_x = max_x
             self.path = path
         #end __init__
+
+        def draw(self, ctx, matrix = Matrix.identity()) :
+            "draws the path into ctx, which is a qahirah.Context, transformed" \
+            " through matrix, which is a qahirah.Matrix."
+            glyphs = self.parent
+            matrix = matrix * Matrix.scale(glyphs.scale)
+            for pathseg in self.path :
+                ctx.new_sub_path()
+                for point in pathseg :
+                    ctx.line_to(matrix.map((point - Vector(0, glyphs.baseline_y))))
+                #end for
+            #end for
+        #end draw
 
     #end Glyph
 
@@ -535,12 +549,7 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
         "UserFontFace render callback to actually render a glyph and define its text_extents."
         glyph_entry = glyphs.glyphs.get(glyph)
         if glyph_entry != None :
-            for pathseg in glyph_entry.path :
-                ctx.new_sub_path()
-                for point in pathseg :
-                    ctx.line_to((point - Vector(0, glyphs.baseline_y)) * glyphs.scale)
-                #end for
-            #end for
+            glyph_entry.draw(ctx)
             ctx.set_line_width \
               (
                 scaled_font.user_data.get
