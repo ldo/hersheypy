@@ -406,6 +406,35 @@ class HersheyGlyphs :
                         nr_letters = 24,
                         redirect = redirects["greeks"]
                       ),
+                "meteorology" :
+                    make_enc
+                      (
+                        preset = "ascii",
+                        redirect =
+                            { # best approximations I could find
+                                34 : 0x02609, # sun
+                                35 : 0x0204e, # low asterisk
+                                36 : 0x025b2, # black up-pointing triangle
+                                38 : 0x02bca, # top half black circle
+                                39 : 0x02503, # black lower left triangle
+                                40 : 0x02303, # up arrowhead
+                                95 : 0x0221e, # infinity
+                                124 : 0x02608, # thunderstorm
+                                126 : 0x1f300, # cyclone
+                              # give up on rest, stick them in private use area
+                              # leave gaps if I change my mind about above assignments
+                                33 : 0x0e000, # looks like comma
+                                41 : 0x0e007, # 0x02312, # arc
+                                43 : 0x0e008, # 0x025e0, # upper half circle
+                                58 : 0x0e009, # 0x025e1, # lower half circle (actually small, like 41)
+                                59 : 0x0e00a, # looks like lower-pointing quadrant
+                                60 : 0x0e00b, # looks like right-pointing semicircle
+                                61 : 0x0e00c, # 0x025de, # lower right quadrant circular arc
+                                62 : 0x0e00d, # 0x025df, # lower left quadrant circular arc
+                                94 : 0x0e00e, # looks exactly like letter S
+                                96 : 0x0e010, # looks like backward letter S on its side
+                            }
+                      ),
                 "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
                 "rowmans" : make_enc(preset = "rowmans", uc = 501, lc = 601),
                 "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200, sym2 = 3210),
