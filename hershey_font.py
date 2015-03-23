@@ -482,6 +482,41 @@ class HersheyGlyphs :
                             },
                         redirect2 = fix_tilde,
                       ),
+                "music" :
+                    make_enc
+                      (
+                        preset = "ascii",
+                        redirect =
+                            { # some of these are guesses
+                                34 : 0x1d19f, # musical symbol ornament stroke-5
+                                35 : 0x1d19e, # musical symbol ornament stroke-4
+                                36 : 0x1d157, # musical symbol void notehead
+                                37 : None, # same as 36
+                                38 : 0x1d158, # musical symbol notehead black
+                                39 : 0x0266F, # music sharp sign
+                                40 : 0x0266e, # music natural sign
+                                41 : 0x0266d, # music flat sign
+                                45 : 0x1d13e, # musical symbol eighth rest
+                                46 : 0x1d13d, # musical symbol quarter rest
+                                59 : 0x1d11e, # musical symbol g clef
+                                60 : None, # same as 47
+                                61 : 0x1d122, # musical symbol f clef
+                                63 : 0x1d121, # musical symbol c clef
+                                64 : None, # same as 43
+                                94 : 0x02019, # right single quotation mark
+                                96 : 0x02018, # left single quotatin mark
+                              # give up on following, put in private-use area
+                                42 : 0x0e008,
+                                43 : 0x0e009,
+                                44 : 0x0e00a,
+                                47 : 0x0e00d, # musical symbol f clef (old form)
+                                62 : 0x0e01c, # looks like old-form c clef
+                            },
+                        redirect2 =
+                            {
+                                95 : 45, # looks more like hyphen than underscore
+                            },
+                      ),
                 "rowmand" : make_enc(uc = 2501, lc = 2601, digits = 2700, sym2 = 2710),
                 "rowmans" : make_enc(preset = "rowmans", uc = 501, lc = 601),
                 "rowmant" : make_enc(uc = 3001, lc = 3101, digits = 3200, sym2 = 3210),
