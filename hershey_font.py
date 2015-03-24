@@ -268,6 +268,50 @@ class HersheyGlyphs :
                         118 : None,
                     },
                 "greeks" : {}, # filled in below
+                "math" :
+                    {
+                        33 : 0x00b1, # plus-minus sign
+                        34 : 0x2213, # minus-or-plus sign
+                        35 : 0x00d7, # multiplication sign
+                        36 : 0x00b7, # middle dot or 0x22c5 dot operator?
+                        38 : 0x2264, # less-than or equal to
+                        39 : 0x2265, # greater-than or equal to
+                        58 : 0x220f, # n-ary product
+                        59 : 0x2211, # n-ary summation
+                        63 : 0x2260, # not equal to
+                        64 : 0x2261, # identical to
+                        94 : 0x221d, # proportional to
+                        95 : 0x221e, # infinity
+                        96 : 0x00b0, # degree sign
+                        99 : 0x221a, # square root
+                        100 : 0x2282, # subset of
+                        101 : 0x222a, # union
+                        102 : 0x2283, # superset of
+                        103 : 0x2229, # intersection
+                        104 : 0x2208, # element of
+                        105 : 0x2192, # rightwards arrow
+                        106 : 0x2191, # upwards arrow
+                        107 : 0x2190, # leftwards arrow
+                        108 : 0x2193, # downwards arrow
+                        109 : 0x2202, # partial differential
+                        110 : 0x2207, # nabla
+                        111 : None, # same as 99
+                        113 : 0x222b, # integral
+                        118 : 0x2203, # there exists
+                        119 : 0x2135, # alef symbol
+                        120 : 0x00f7, # division sign
+                        121 : 0x2225, # parallel
+                        122 : 0x22a5, # up tack
+                        124 : 0x2220, # angle
+                        126 : 0x2234, # therefore
+                      # no good match for these, put in private-use area:
+                        98 : 0xe041, # (smaller) square root
+                        112 : 0xe04f, # (smaller) integral
+                        114 : 0xe051, # (large) left parenthesis
+                        115 : 0xe052, # (large) right parenthesis
+                        116 : 0xe053, # (large) left square bracket
+                        117 : 0xe054, # (large) right square bracket
+                    },
             }
         for ch in range(0, 26) :
             redirects["cyrilc_1"][ch + ord("A")] = ch + 0x410
@@ -303,7 +347,7 @@ class HersheyGlyphs :
             }
         fix_tilde = {127 : 126}
 
-        def make_enc(preset = None, uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, nr_letters = 26, extra = None, redirect = None, redirect2 = None) :
+        def make_enc(preset = None, uc = None, lc = None, digits = None, space = None, sym1_except = None, sym2 = 3710, sym2_except = None, nr_letters = 26, extra = None, redirect = None, redirect2 = None, redirect3 = None) :
             # makes an encoding given starting points for common glyph ranges
             # plus various optional exceptions
             enc = {}
@@ -372,7 +416,7 @@ class HersheyGlyphs :
                     enc[ord(k)] = extra[k]
                 #end for
             #end if
-            for r in redirect, redirect2 :
+            for r in redirect, redirect2, redirect3 :
                 if r != None :
                     for k in r :
                         redir = r[k]
@@ -451,6 +495,40 @@ class HersheyGlyphs :
                         0xe000 : 70, # like white plus sign
                       # rest are either blank or duplicates
                     },
+                "mathlow" :
+                    make_enc
+                      (
+                        preset = "ascii",
+                        redirect = redirects["math"],
+                        redirect2 =
+                            {
+                                97 : 36, # dollar sign
+                                127 : 126, # tilde
+                            },
+                        redirect3 = dict
+                          (
+                            (c, c + 32) for c in range(65, 91)
+                          ),
+                      ),
+                "mathupp" :
+                    make_enc
+                      (
+                        preset = "ascii",
+                        redirect = dict
+                          (
+                                (
+                                    (97, None), # duplicate of 42 asterisk
+                                    (123, None), # duplicate of 93 right square bracket (right curly bracket is missing)
+                                )
+                            +
+                                tuple((k, d[k]) for d in (redirects["math"],) for k in d)
+                          ),
+                        redirect2 =
+                            {
+                                125 : 123, # left curly bracket
+                                127 : 126, # tilde
+                            }
+                      ),
                 "meteorology" :
                     make_enc
                       (
