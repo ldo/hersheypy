@@ -66,14 +66,7 @@ text = text.split("\n")
 face = hershey_font.load(fontfile, line_width = line_width, line_spacing = line_spacing)
 
 ctx = \
-    (qah.Context.create
-      (
-        qah.ImageSurface.create
-          (
-            format = CAIRO.FORMAT_A8,
-            dimensions = (0, 0) # dummy, just for text measurement
-          )
-      )
+    (qah.Context.create_for_dummy()
         .set_font_face(face)
         .set_font_size(text_size)
     )
