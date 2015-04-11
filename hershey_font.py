@@ -13,6 +13,8 @@ This module requires my Qahirah wrapper for Cairo <https://github.com/ldo/qahira
 # Licensed under CC-BY <http://creativecommons.org/licenses/by/4.0/>.
 #-
 
+__all__ = ("death_to_wildcard_imports",)
+
 import os
 import qahirah as qah
 from qahirah import \
