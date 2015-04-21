@@ -52,7 +52,7 @@ if len(args) != 1 :
     raise getopt.GetoptError("need one arg, the path to the Hershey font file")
 #end if
 
-hfont = hershey_font.load(args[0], line_width, use_encoding = use_encoding)
+hfont = hershey_font.load(args[0].split(","), line_width, use_encoding = use_encoding)
 # hfont.user_data["hershey_line_width"] = .1 # test
 # print(type(hfont)) # debug
 

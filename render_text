@@ -63,7 +63,7 @@ if len(args) != 3 :
 #end if
 text, fontfile, outfile = args
 text = text.split("\n")
-face = hershey_font.load(fontfile, line_width = line_width, line_spacing = line_spacing)
+face = hershey_font.load(fontfile.split(","), line_width = line_width, line_spacing = line_spacing)
 
 ctx = \
     (qah.Context.create_for_dummy()

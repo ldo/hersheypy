@@ -23,11 +23,16 @@ from qahirah import \
 
 debug = False
 
+default_path = "/usr/share/hershey-fonts"
+  # where the fonts are to be found on Debian
+default_ext = ".jhf"
+
 class HersheyGlyphs :
     "container for decoded data from a Hershey font file. glyphs is a mapping from glyph" \
     " codes to HersheyGlyphs.Glyph objects, while encoding, if not None, provides a mapping" \
     " from Unicode character codes to glyph numbers. If encoding is None, then glyph numbers" \
-    " can be directly interpreted as ASCII character codes."
+    " can be directly interpreted as ASCII character codes. Do not instantiate directly;" \
+    " use the load method instead."
 
     __slots__ = ("glyphs", "baseline_y", "encoding", "min", "max", "scale")
 
@@ -60,9 +65,19 @@ class HersheyGlyphs :
 
     #end Glyph
 
-    def __init__(self, filename, align_left = True) :
-        self.glyphs = {}
-        self.baseline_y = 9
+    @staticmethod
+    def load(filename, align_left = True, use_encoding = True) :
+        "creates a new HersheyGlyphs object by decoding the contents of the" \
+        " specified .jhf file."
+        if filename.find("/") < 0 :
+            if filename.find(".") < 0 :
+                filename += default_ext
+            #end if
+            filename = os.path.join(default_path, filename)
+        #end if
+        result = HersheyGlyphs()
+        result.glyphs = {}
+        result.baseline_y = 9
         min_x = max_x = min_y = max_y = 0
         linenr = 0
         for line in open(filename, "r") :
@@ -119,20 +134,26 @@ class HersheyGlyphs :
             if align_left :
                 x_extents = (0, x_extents[1] - x_extents[0])
             #end if
-            self.glyphs[glyphnr] = HersheyGlyphs.Glyph(self, x_extents[0], x_extents[1], pathsegs)
+            result.glyphs[glyphnr] = HersheyGlyphs.Glyph(result, x_extents[0], x_extents[1], pathsegs)
         #end for
-        self.min = Vector(min_x, min_y)
-        self.max = Vector(max_x, max_y)
+        result.min = Vector(min_x, min_y)
+        result.max = Vector(max_x, max_y)
         if align_left :
-            self.max -= Vector(self.min.x, 0)
-            self.min = Vector(0, self.min.y)
+            result.max -= Vector(result.min.x, 0)
+            result.min = Vector(0, result.min.y)
         #end if
         width = max_x - min_x
         height = max_y - min_y
-        self.scale = 1 / max(width, height)
+        result.scale = 1 / max(width, height)
         basename = os.path.splitext(os.path.basename(filename))[0]
-        self.encoding = self.encodings.get(basename)
-    #end __init__
+        if use_encoding :
+            result.encoding = result.encodings.get(basename)
+        else :
+            result.encoding = None
+        #end if
+        return \
+            result
+    #end load
 
     def __len__(self) :
         return \
@@ -148,6 +169,50 @@ class HersheyGlyphs :
         return \
             self.glyphs.keys()
     #end keys
+
+    def __or__(f1, f2) :
+        "forms the union of two HersheyGlyphs objects."
+        result = HersheyGlyphs()
+        assert (f1.encoding != None) == (f2.encoding != None), "cannot have partially-encoded font"
+        f2_offset = max(f1.glyphs)
+        f2_remap = None
+        if f1.encoding == None :
+            result.encoding = None
+        else :
+            result.encoding = dict(f1.encoding)
+            f2_remap = {}
+            for k in sorted(f2.encoding) :
+                if k not in result.encoding :
+                    code = f2.encoding[k]
+                    if code in f1.glyphs :
+                        f2_offset += 1
+                        f2_remap[code] = f2_offset
+                        result.encoding[k] = f2_offset
+                    else :
+                        result.encoding[k] = code
+                    #end if
+                #end if
+            #end for
+        #end if
+        result.glyphs = dict(f1.glyphs)
+        for k in f2.glyphs :
+            glyph = f2.glyphs[k]
+            if f2_remap != None :
+                code = f2_remap.get(k, k)
+            else :
+                f2_offset += 1
+                code = f2_offset
+            #end if
+            result.glyphs[code] = HersheyGlyphs.Glyph(result, glyph.min_x, glyph.max_x, glyph.path)
+        #end for
+        result.baseline_y = f1.baseline_y
+        result.min = Vector(min(f1.min.x, f2.min.x), min(f1.min.y, f2.min.y))
+        result.max = Vector(max(f1.max.x, f2.max.x), max(f1.max.y, f2.max.y))
+        dims = result.max - result.min
+        result.scale = 1 / max(dims.x, dims.y)
+        return \
+            result
+    #end __or__
 
     def make_encodings() :
         # make ASCII encodings for fonts with non-ASCII glyph numbers
@@ -643,10 +708,6 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
     " coordinates (e.g. 0.01 is a reasonable value), and line_spacing is the" \
     " relative spacing between text lines."
 
-    if glyphs.encoding == None :
-        use_encoding = False # no encoding to use
-    #end if
-
     def init_hershey(scaled_font, ctx, font_extents) :
         "UserFontFace init callback to define the font_extents."
         font_extents.ascent = (glyphs.baseline_y - glyphs.min.y) * glyphs.scale
@@ -695,8 +756,7 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
         if use_encoding :
             glyph = glyphs.encoding.get(unicode, 0)
         else :
-            # these fonts define printable ASCII codes only
-            if unicode >= 32 and unicode < 128 :
+            if unicode in glyphs.glyphs :
                 glyph = unicode
             else :
                 glyph = 0
@@ -733,6 +793,16 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
     #end text_to_glyphs
 
 #begin make
+    if isinstance(glyphs, tuple) or isinstance(glyphs, list) :
+        merged = glyphs[0]
+        for g in glyphs[1:] :
+            merged |= g
+        #end for
+        glyphs = merged
+    #end if
+    if glyphs.encoding == None :
+        use_encoding = False # no encoding to use
+    #end if
     the_font = qah.UserFontFace.create \
       (
         init_func = init_hershey,
@@ -752,7 +822,11 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
 def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_left = True, kern = False) :
     "convenience wrapper which loads a HersheyGlyphs object from the specified file," \
     " and invokes make with it and the specified and line_spacing parameters."
-    glyphs = HersheyGlyphs(filename, align_left = align_left)
+    if isinstance(filename, tuple) or isinstance(filename, list) :
+        glyphs = tuple(HersheyGlyphs.load(f, align_left = align_left, use_encoding = use_encoding) for f in filename)
+    else :
+        glyphs = HersheyGlyphs.load(filename, align_left = align_left, use_encoding = use_encoding)
+    #end if
     return \
         make(glyphs, line_width, line_spacing, use_encoding = use_encoding, kern = kern)
 #end load
