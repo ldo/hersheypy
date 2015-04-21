@@ -190,24 +190,22 @@ class HersheyGlyphs :
                         chr(glyph.max_x + ord("R")),
                     )
               )
-            if len(glyph.path) != 0 :
-                for i, pathseg in enumerate(glyph.path) :
-                    if i != 0 :
-                        tofile.write(" R") # pen up
-                    #end if
-                    for p in pathseg :
-                        tofile.write \
-                          (
-                                "%c%c"
-                            %
-                                (
-                                    chr(p.x + ord("R")),
-                                    chr(p.y + ord("R")),
-                                )
-                          )
-                    #end for
+            for i, pathseg in enumerate(glyph.path) :
+                if i != 0 :
+                    tofile.write(" R") # pen up
+                #end if
+                for p in pathseg :
+                    tofile.write \
+                      (
+                            "%c%c"
+                        %
+                            (
+                                chr(p.x + ord("R")),
+                                chr(p.y + ord("R")),
+                            )
+                      )
                 #end for
-            #end if
+            #end for
             tofile.write("\n")
         #end for
     #end save
