@@ -167,7 +167,7 @@ class HersheyGlyphs :
             codes = self.glyphs.keys()
         #end if
         for code in sorted(codes) :
-            assert code > 0 and code < 99999 # i.e. it fits in 5 digits
+            assert code > 0 and code <= 99999 # i.e. it fits in 5 digits
             if use_encoding :
                 glyph = self.glyphs[self.encoding[code]]
             else :
