@@ -173,16 +173,16 @@ class HersheyGlyphs :
             else :
                 glyph = self.glyphs[code]
             #end if
-            tofile.write("%5d " % code)
+            tofile.write("%5d" % code)
             if len(glyph.path) != 0 :
                 nr_points = sum(len(p) for p in glyph.path) + len(glyph.path)
             else :
                 nr_points = 1
             #end if
-            assert nr_points < 100 # i.e. it fits in 2 digits
+            assert nr_points < 1000 # i.e. it fits in 3 digits
             tofile.write \
               (
-                    "%2d%c%c"
+                    "%3d%c%c"
                 %
                     (
                         nr_points,
