@@ -14,6 +14,7 @@ This module requires my Qahirah wrapper for Cairo <https://github.com/ldo/qahira
 #-
 
 import os
+import io
 import qahirah as qah
 from qahirah import \
     CAIRO, \
@@ -154,6 +155,62 @@ class HersheyGlyphs :
         return \
             result
     #end load
+
+    def save(self, tofile, use_encoding = True) :
+        "uses tofile.write() to output this HersheyGlyphs object in .jhf file format."
+        if self.encoding == None :
+            use_encoding = False
+        #end if
+        if use_encoding :
+            codes = self.encoding.keys()
+        else :
+            codes = self.glyphs.keys()
+        #end if
+        for code in sorted(codes) :
+            assert code > 0 and code < 99999 # i.e. it fits in 5 digits
+            if use_encoding :
+                glyph = self.glyphs[self.encoding[code]]
+            else :
+                glyph = self.glyphs[code]
+            #end if
+            tofile.write("%5d " % code)
+            if len(glyph.path) != 0 :
+                nr_points = sum(len(p) for p in glyph.path) + len(glyph.path)
+            else :
+                nr_points = 1
+            #end if
+            tofile.write \
+              (
+                    "%2d%c%c"
+                %
+                    (
+                        nr_points,
+                        chr(glyph.min_x + ord("R")),
+                        chr(glyph.max_x + ord("R")),
+                    )
+              )
+            if len(glyph.path) != 0 :
+                assert nr_points < 100 # i.e. it fits in 2 digits
+                for i, pathseg in enumerate(glyph.path) :
+                    if i != 0 :
+                        tofile.write(" R") # pen up
+                    #end if
+                    for p in pathseg :
+                        tofile.write \
+                          (
+                                "%c%c"
+                            %
+                                (
+                                    chr(p.x + ord("R")),
+                                    chr(p.y + ord("R")),
+                                )
+                          )
+                    #end for
+                #end for
+            #end if
+            tofile.write("\n")
+        #end for
+    #end save
 
     def __len__(self) :
         return \
