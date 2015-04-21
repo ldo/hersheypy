@@ -179,6 +179,7 @@ class HersheyGlyphs :
             else :
                 nr_points = 1
             #end if
+            assert nr_points < 100 # i.e. it fits in 2 digits
             tofile.write \
               (
                     "%2d%c%c"
@@ -190,7 +191,6 @@ class HersheyGlyphs :
                     )
               )
             if len(glyph.path) != 0 :
-                assert nr_points < 100 # i.e. it fits in 2 digits
                 for i, pathseg in enumerate(glyph.path) :
                     if i != 0 :
                         tofile.write(" R") # pen up
