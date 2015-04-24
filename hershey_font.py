@@ -555,6 +555,45 @@ class HersheyGlyphs :
 
         encodings = \
             { # key is basename of font file without .jhf extension
+                "astrology" :
+                    make_enc
+                      (
+                        preset = "ascii",
+                        redirect =
+                            {
+                              # best approximations I could find
+                                33 : 0x2653, # pisces
+                                35 : 0x2609, # sun
+                                36 : 0x263F, # mercury
+                                37 : 0x2640, # female sign
+                                38 : 0x2295, # circled plus
+                                39 : 0x2642, # male sign
+                                42 : 0x2643, # jupiter
+                                43 : 0x2644, # saturn
+                                45 : 0x26e2, # astronomical symbol for uranus
+                                47 : 0x2646, # neptune
+                                58 : 0x2647, # pluto
+                                59 : 0x263e, # last quarter moon (?)
+                                60 : 0x2604, # comet
+                                61 : 0x2605, # black star (?)
+                                62 : 0x260a, # ascending node
+                                63 : 0x260b, # descending node
+                                64 : 0x2648, # aries
+                                91 : 0x2649, # taurus
+                                93 : 0x264a, # gemini
+                                94 : 0x264b, # cancer
+                                95 : 0x264c, # leo
+                                96 : 0x264d, # virgo
+                                123 : 0x264f, # scorpius
+                                124 : 0x2650, # sagittarius
+                                125 : 0x2651, # capricorn (?)
+                                126 : 0x2652, # aquarius
+                            },
+                        redirect2 =
+                            {
+                                127 : 126, # tilde
+                            },
+                      ),
                 # "cursive" : ASCII
                 "cyrilc_1" :
                     make_enc
