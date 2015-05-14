@@ -24,8 +24,8 @@ from qahirah import \
 
 debug = False
 
-default_path = "/usr/share/hershey-fonts"
-  # where the fonts are to be found on Debian
+default_path = os.getenv("HERSHEY_FONTS_DIR", "/usr/share/hershey-fonts")
+  # where the fonts are to be found, default is location on Debian
 default_ext = ".jhf"
 
 class HersheyGlyphs :
