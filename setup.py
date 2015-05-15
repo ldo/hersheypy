@@ -13,7 +13,7 @@ import distutils.core
 distutils.core.setup \
   (
     name = "HersheyPy",
-    version = "0.5",
+    version = "0.6",
     description = "Hershey fonts as user fonts with the Cairo graphics library",
     author = "Lawrence D'Oliveiro",
     author_email = "ldo@geek-central.gen.nz",

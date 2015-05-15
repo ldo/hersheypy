@@ -796,11 +796,13 @@ class HersheyGlyphs :
 
 #end HersheyGlyphs
 
-def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = False) :
+def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = False, line_dash = None, line_cap = None) :
     "constructs a qahirah.UserFontFace object from the specified HersheyGlyphs" \
     " object. line_width is the width of lines for stroking, relative to font" \
-    " coordinates (e.g. 0.01 is a reasonable value), and line_spacing is the" \
-    " relative spacing between text lines."
+    " coordinates (e.g. 0.01 is a reasonable value), line_spacing is the" \
+    " relative spacing between text lines, use_encoding indicates whether to use a" \
+    " Unicode-compatible encoding if available, kern whether to do kerning, and line_dash" \
+    " and line_cap specify dash and cap settings for drawing the lines."
 
     def init_hershey(scaled_font, ctx, font_extents) :
         "UserFontFace init callback to define the font_extents."
@@ -818,14 +820,16 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
         glyph_entry = glyphs.glyphs.get(glyph)
         if glyph_entry != None :
             glyph_entry.draw(ctx)
-            ctx.set_line_width \
-              (
-                scaled_font.user_data.get
-                  (
-                    "hershey_line_width",
-                    scaled_font.font_face.user_data["hershey_line_width"]
-                  )
-              )
+            # no point trying to allow user to change line_width, line_dash and line_cap
+            # settings via user_data in the FontFace or the ScaledFont, since Cairo
+            # caches this information and does not currently provide a way to flush that cache.
+            ctx.set_line_width(line_width)
+            if line_dash != None :
+                ctx.set_dash(line_dash)
+            #end if
+            if line_cap != None :
+                ctx.set_line_cap(line_cap)
+            #end if
             ctx.stroke()
             text_extents.x_bearing = glyph_entry.min_x * glyphs.scale
             text_extents.x_advance = (glyph_entry.max_x - glyph_entry.min_x) * glyphs.scale
@@ -908,12 +912,11 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
         the_font.unicode_to_glyph_func = unicode_to_glyph
     #end if
     the_font.user_data["hershey_glyphs"] = glyphs # for caller's benefit
-    the_font.user_data["hershey_line_width"] = line_width # so caller can adjust
     return \
         the_font
 #end make
 
-def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_left = True, kern = False) :
+def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_left = True, kern = False, line_dash = None, line_cap = None) :
     "convenience wrapper which loads a HersheyGlyphs object from the specified file," \
     " and invokes make with it and the specified and line_spacing parameters."
     if isinstance(filename, tuple) or isinstance(filename, list) :
@@ -922,5 +925,5 @@ def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_le
         glyphs = HersheyGlyphs.load(filename, align_left = align_left, use_encoding = use_encoding)
     #end if
     return \
-        make(glyphs, line_width, line_spacing, use_encoding = use_encoding, kern = kern)
+        make(glyphs, line_width, line_spacing, use_encoding = use_encoding, kern = kern, line_dash = line_dash, line_cap = line_cap)
 #end load
