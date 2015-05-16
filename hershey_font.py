@@ -796,13 +796,13 @@ class HersheyGlyphs :
 
 #end HersheyGlyphs
 
-def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = False, line_dash = None, line_cap = None) :
+def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = False, line_dash = None, line_cap = None, line_join = None) :
     "constructs a qahirah.UserFontFace object from the specified HersheyGlyphs" \
     " object. line_width is the width of lines for stroking, relative to font" \
     " coordinates (e.g. 0.01 is a reasonable value), line_spacing is the" \
     " relative spacing between text lines, use_encoding indicates whether to use a" \
-    " Unicode-compatible encoding if available, kern whether to do kerning, and line_dash" \
-    " and line_cap specify dash and cap settings for drawing the lines."
+    " Unicode-compatible encoding if available, kern whether to do kerning, and line_dash," \
+    " line_cap and line_join specify dash, cap and join settings for drawing the lines."
 
     def init_hershey(scaled_font, ctx, font_extents) :
         "UserFontFace init callback to define the font_extents."
@@ -829,6 +829,9 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
             #end if
             if line_cap != None :
                 ctx.set_line_cap(line_cap)
+            #end if
+            if line_join != None :
+                ctx.set_line_join(line_join)
             #end if
             ctx.stroke()
             text_extents.x_bearing = glyph_entry.min_x * glyphs.scale
@@ -916,7 +919,7 @@ def make(glyphs, line_width, line_spacing = 1.0, use_encoding = True, kern = Fal
         the_font
 #end make
 
-def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_left = True, kern = False, line_dash = None, line_cap = None) :
+def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_left = True, kern = False, line_dash = None, line_cap = None, line_join = None) :
     "convenience wrapper which loads a HersheyGlyphs object from the specified file," \
     " and invokes make with it and the specified and line_spacing parameters."
     if isinstance(filename, tuple) or isinstance(filename, list) :
@@ -925,5 +928,5 @@ def load(filename, line_width, line_spacing = 1.0, use_encoding = True, align_le
         glyphs = HersheyGlyphs.load(filename, align_left = align_left, use_encoding = use_encoding)
     #end if
     return \
-        make(glyphs, line_width, line_spacing, use_encoding = use_encoding, kern = kern, line_dash = line_dash, line_cap = line_cap)
+        make(glyphs, line_width, line_spacing, use_encoding = use_encoding, kern = kern, line_dash = line_dash, line_cap = line_cap, line_join = line_join)
 #end load
