@@ -28,6 +28,16 @@ default_path = os.getenv("HERSHEY_FONTS_DIR", "/usr/share/hershey-fonts")
   # where the fonts are to be found, default is location on Debian
 default_ext = ".jhf"
 
+def each_name() :
+    "iterator which yields names of all available Hershey fonts."
+    for item in os.listdir(default_path) :
+        if item.endswith(default_ext) :
+            item = item[: - len(default_ext)]
+            yield item
+        #end if
+    #end for
+#end each_name
+
 class HersheyGlyphs :
     "container for decoded data from a Hershey font file. glyphs is a mapping from glyph" \
     " codes to HersheyGlyphs.Glyph objects, while encoding, if not None, provides a mapping" \
