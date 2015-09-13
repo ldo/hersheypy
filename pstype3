@@ -99,7 +99,7 @@ def gen_font(font, name, block_codes, encoding) :
         else :
             pr(" ")
         #end if
-        if c in block_codes :
+        if c in block_codes and block_codes[c] in encoding :
             pr("/" + code_name(block_codes[c]))
         else :
             pr("/.notdef")
@@ -122,25 +122,28 @@ def gen_font(font, name, block_codes, encoding) :
               )
       )
     for c in sorted(block_codes.keys()) :
-        glyph = font.glyphs[encoding[block_codes[c]]]
-        pr \
-          (
-            "        /{name} << /min_x {min_x} /max_x {max_x} /path {{newpath".format
+        glyph = encoding.get(block_codes[c])
+        if glyph != None :
+            glyph = font.glyphs[glyph]
+            pr \
               (
-                name = code_name(c),
-                min_x = glyph.min_x,
-                max_x = glyph.max_x,
+                "        /{name} << /min_x {min_x} /max_x {max_x} /path {{newpath".format
+                  (
+                    name = code_name(c),
+                    min_x = glyph.min_x,
+                    max_x = glyph.max_x,
+                  )
               )
-          )
-        for pathseg in glyph.path :
-            firstpoint = True
-            for point in pathseg :
-                point -= Vector(0, font.baseline_y)
-                pr(" {x} {y} {op}".format(x = point.x, y = point.y, op = ("lineto", "moveto")[firstpoint]))
-                firstpoint = False
+            for pathseg in glyph.path :
+                firstpoint = True
+                for point in pathseg :
+                    point -= Vector(0, font.baseline_y)
+                    pr(" {x} {y} {op}".format(x = point.x, y = point.y, op = ("lineto", "moveto")[firstpoint]))
+                    firstpoint = False
+                #end for
             #end for
-        #end for
-        pr("} >>\n")
+            pr("} >>\n")
+        #end if
     #end for
     pr("    >>\n")
     pr("    /FontBBox {}\n".format(gen_bbox_str(font)))
