@@ -184,9 +184,10 @@ for fontname in args :
     basefontname = os.path.splitext(os.path.basename(fontname))[0] + suffix
     if max(encoding) > 255 :
         # assume 16-bit code will suffice
+        child_font_prefix = "_"
         child_fonts = []
         child_blocks = []
-        child_font_name = "{}-empty".format(basefontname)
+        child_font_name = "{}{}-empty".format(child_font_prefix, basefontname)
         gen_font(font, child_font_name, {}, encoding) # for handling empty blocks
         child_fonts.append(child_font_name)
         for block in range(256) :
@@ -198,7 +199,7 @@ for fontname in args :
                 #end if
             #end for
             if len(block_codes) != 0 :
-                child_font_name = "{}-{:03d}".format(basefontname, block)
+                child_font_name = "{}{}-{:03d}".format(child_font_prefix, basefontname, block)
                 gen_font(font, child_font_name, block_codes, encoding)
                 child_blocks.append("{}".format(len(child_fonts)))
                 child_fonts.append(child_font_name)
