@@ -61,7 +61,7 @@ class HersheyGlyphs :
             self.path = path
         #end __init__
 
-        def draw(self, ctx, matrix = Matrix.identity()) :
+        def draw(self, ctx, matrix = Matrix.identity) :
             "draws the path into ctx, which is a qahirah.Context, transformed" \
             " through matrix, which is a qahirah.Matrix."
             glyphs = self.parent
