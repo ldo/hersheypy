@@ -16,6 +16,7 @@ that make use of this module:
 
 * “chart” generates a chart of all the characters defined by a Hershey font
 * “render_text” renders a line of text in a Hershey font
+* “pstype3” converts a Hershey font to PostScript Type 3 format
 
 Further examples of HersheyPy in action are available in the
 [HersheyPy Examples](https://github.com/ldo/hersheypy_examples)
@@ -33,4 +34,4 @@ and can be found in the /usr/share/hershey-fonts directory when that
 package is installed.
 
 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
-2015 May 14
+2015 December 31
