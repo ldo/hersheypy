@@ -751,7 +751,7 @@ class HersheyGlyphs :
                                 63 : 0x1d121, # musical symbol c clef
                                 64 : None, # same as 43
                                 94 : 0x02019, # right single quotation mark
-                                96 : 0x02018, # left single quotatin mark
+                                96 : 0x02018, # left single quotation mark
                               # give up on following, put in private-use area
                                 42 : 0x0e008,
                                 43 : 0x0e009,
