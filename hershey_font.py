@@ -485,6 +485,13 @@ class HersheyGlyphs :
                 for k in range(32, 128) :
                     enc[k] = k
                 #end for
+            elif preset == "private_use" :
+                excepting = set(extra.values())
+                for c in range(32, 128) :
+                    if c not in excepting :
+                        enc[0xe000 + c - 32] = c
+                    #end if
+                #end for
             else :
                 if preset == "rowmans" :
                     digits = 700
@@ -787,6 +794,54 @@ class HersheyGlyphs :
                                 "+" : 725,
                                 "=" : 726,
                                 "#" : 733,
+                            },
+                      ),
+                "symbolic" :
+                    make_enc
+                      (
+                        preset = "private_use",
+                        extra =
+                            {
+                                " " : 32,
+                                chr(0x00b7) : 65, # middle dot, or is it 0x2022 bullet?
+                                chr(0xfe47) : 68, # presentation form for vertical left square bracket?
+                                chr(0x2227) : 69, # logical and -- or u+2303 up arrowhead, or u+005e circumflex?
+                                chr(0x23f7) : 71, # black medium down-pointing triangle
+                                chr(0x25ef) : 72, # large circle, or u+25cb white circle?
+                                chr(0x2b1c) : 73, # white large square, or u+25a1 white square?
+                                chr(0x25b3) : 74, # white up-pointing triangle
+                                chr(0x2b28) : 75, # white medium lozenge, ur u+25ca lozenge?
+                                chr(0x2b50) : 76, # white medium star, or u+2606 white star?
+                                "+" : 77,
+                                "×" : 78, # u+00d7 multiplication sign
+                                "*" : 79,
+                                chr(0x25b2) : 82, # black up-pointing triangle
+                                chr(0x25c0) : 83, # black left-pointing triangle
+                                chr(0x25bc) : 84, # black down-pointing triangle
+                                chr(0x25b6) : 85, # black right-pointing triangle
+                                chr(0x1f6a9) : 86, # triangular flag on post
+                                chr(0x2693) : 88, # anchor
+                                "\\" : 92,
+                                chr(0x2795) : 94, # heavy plus sign
+                                chr(0x2721) : 96, # star of david
+                                chr(0x1f514) : 97, # bell
+                                chr(0x1f334) : 98, # palm tree
+                                chr(0x1f332) : 99, # evergreen tree?
+                                chr(0x1f333) : 100, # deciduous tree?
+                                chr(0x2618) : 104, # shamrock
+                                "§" : 105, # section sign
+                                chr(0x2020) : 106, # dagger
+                                chr(0x2021) : 107, # double dagger
+                                chr(0x2234) : 108, # therefore
+                                chr(0x2664) : 109, # white spade suit
+                                chr(0x2661) : 110, # white heart suit
+                                chr(0x2662) : 111, # white dimaond suit
+                                chr(0x2667) : 112, # white club suit
+                                "{" : 113,
+                                "}" : 114,
+                                chr(0x221a) : 117, # square root
+                                chr(0x2605) : 126, # black star
+                                "~" : 127,
                             },
                       ),
                 # "timesi" : ASCII
