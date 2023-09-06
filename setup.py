@@ -19,6 +19,6 @@ setuptools.setup \
     description = "Hershey fonts as user fonts with the Cairo graphics library",
     author = "Lawrence D'Oliveiro",
     author_email = "ldo@geek-central.gen.nz",
-    url = "https://github.com/ldo/hersheypy",
+    url = "https://gitlab.com/ldo/hersheypy",
     py_modules = ["hershey_font"],
   )

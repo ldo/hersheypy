@@ -6,7 +6,7 @@ be represented in a common font format like TrueType or Type 1.
 
 I created this HersheyPy project as a testbed for the user-fonts
 functionality in Qahirah ([GitLab](https://gitlab.com/ldo/qahirah),
-[GitHub](https://github.com/ldo/qahirah)), my Python 3 wrapper for the
+[BitBucket](https://bitbucket.org/ldo17/qahirah)), my Python 3 wrapper for the
 [Cairo](https://www.cairographics.org/) graphics library, and these
 scripts require you to have Qahirah installed. The enclosed
 “`hershey_font.py`” module provides the basic functionality of loading
@@ -20,7 +20,7 @@ examples that make use of this module:
 
 Further examples of HersheyPy in action are available in the HersheyPy
 Examples ([GitLab](https://gitlab.com/ldo/hersheypy_examples),
-[GitHub](https://github.com/ldo/hersheypy_examples)) repository.
+[BitBucket](https://bitbucket.org/ldo17/hersheypy_examples)) repository.
 
 There is some additional debug functionality in the code that was put
 in to do a more thorough exercising of Qahirah, but which is not
@@ -34,4 +34,4 @@ found in the `/usr/share/hershey-fonts` directory when that package is
 installed.
 
 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
-2017 April 7
+2023 September 6
