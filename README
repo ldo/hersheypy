@@ -1,37 +1,4 @@
-The [Hershey fonts](http://www.whence.com/hershey-fonts/) are a set of
-fonts created by a Doctor A V Hershey in the 1960s. They are stroke
-fonts, defined in terms of drawing lines, rather than filling in curve
-outlines as with most scalable font formats. Thus, they cannot easily
-be represented in a common font format like TrueType or Type 1.
-
-I created this HersheyPy project as a testbed for the user-fonts
-functionality in Qahirah ([GitLab](https://gitlab.com/ldo/qahirah),
-[BitBucket](https://bitbucket.org/ldo17/qahirah)), my Python 3 wrapper for the
-[Cairo](https://www.cairographics.org/) graphics library, and these
-scripts require you to have Qahirah installed. The enclosed
-“`hershey_font.py`” module provides the basic functionality of loading
-a Hershey font and creating a `UserFontFace` object from it that can
-be used to draw text into a `Context`, while the remaining scripts are
-examples that make use of this module:
-
-* “`chart`” generates a chart of all the characters defined by a Hershey font
-* “`render_text`” renders a line of text in a Hershey font
-* “`pstype3`” converts a Hershey font to PostScript Type 3 format
-
-Further examples of HersheyPy in action are available in the HersheyPy
-Examples ([GitLab](https://gitlab.com/ldo/hersheypy_examples),
-[BitBucket](https://bitbucket.org/ldo17/hersheypy_examples)) repository.
-
-There is some additional debug functionality in the code that was put
-in to do a more thorough exercising of Qahirah, but which is not
-needed for “production” use and so has been disabled. Feel free to
-nosey around...
-
-Note that I do not include the Hershey fonts themselves: you can
-download them from the link above. Or on a Debian 8.0 or later system,
-the Hershey fonts come from the `hershey-fonts-data` package, and can be
-found in the `/usr/share/hershey-fonts` directory when that package is
-installed.
-
-Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
-2023 September 6
+This project is no longer being maintained on GitHub.
+Look for it at one of
+* gitlab: https://gitlab.com/ldo/hersheypy
+* bitbucket: https://bitbucket.org/ldo17/hersheypy
