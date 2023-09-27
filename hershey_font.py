@@ -6,7 +6,7 @@ they can be rendered using the user-font facility of the Cairo graphics API.
 On Debian, the Hershey fonts come from the hershey-fonts-data package,
 and can be found in /usr/share/hershey-fonts when that package is installed.
 
-This module requires my Qahirah wrapper for Cairo <https://github.com/ldo/qahirah>.
+This module requires my Qahirah wrapper for Cairo <https://gitlab.com/ldo/qahirah>.
 """
 #+
 # Copyright 2015 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
